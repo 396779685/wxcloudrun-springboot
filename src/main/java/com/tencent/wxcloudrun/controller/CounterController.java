@@ -92,10 +92,10 @@ public class CounterController {
             "\"MsgType\":\"text\"," +
             "\"MsgId\":24927491174065560" +
             "}";
-    String ToUserName = request.getString("ToUserName");
+    String FromUserName = request.getString("FromUserName");
     long timestamp = System.currentTimeMillis() / 1000;
     String result = "<xml>\n" +
-            "  <ToUserName><![CDATA["+ToUserName+"]]></ToUserName>\n" +
+            "  <ToUserName><![CDATA["+FromUserName+"]]></ToUserName>\n" +
             "  <FromUserName><![CDATA[gh_ece0086d4736]]></FromUserName>\n" +
             "  <CreateTime>"+timestamp+"</CreateTime>\n" +
             "  <MsgType><![CDATA[text]]></MsgType>\n" +
