@@ -1,5 +1,6 @@
 package com.tencent.wxcloudrun.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.tencent.wxcloudrun.config.ApiResponse;
@@ -79,5 +80,11 @@ public class CounterController {
       return ApiResponse.error("参数action错误");
     }
   }
-  
+
+  @PostMapping(value = "/api/getMsg")
+  ApiResponse getMsg(@RequestBody JSONObject request) {
+    logger.info("/api/getMsg post request, action: {}", request.toJSONString());
+
+    return ApiResponse.ok(request.toJSONString());
+  }
 }
