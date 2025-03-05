@@ -82,9 +82,34 @@ public class CounterController {
   }
 
   @PostMapping(value = "/api/getMsg")
-  ApiResponse getMsg(@RequestBody JSONObject request) {
+  String getMsg(@RequestBody JSONObject request) {
     logger.info("/api/getMsg post request, action: {}", request.toJSONString());
+    String msg = "{" +
+            "\"Content\":\"哇哈\"," +
+            "\"CreateTime\":1741164957," +
+            "\"ToUserName\":\"gh_ece0086d4736\"," +
+            "\"FromUserName\":\"oSiRW6Cu5aS3fNRnbnnE6E0PodcY\"," +
+            "\"MsgType\":\"text\"," +
+            "\"MsgId\":24927491174065560" +
+            "}";
+    String ToUserName = request.getString("ToUserName");
+    long timestamp = System.currentTimeMillis() / 1000;
+    String result = "<xml>\n" +
+            "  <ToUserName><![CDATA["+ToUserName+"]]></ToUserName>\n" +
+            "  <FromUserName><![CDATA[wxd06c16ebb3c56726]]></FromUserName>\n" +
+            "  <CreateTime>"+timestamp+"</CreateTime>\n" +
+            "  <MsgType><![CDATA[text]]></MsgType>\n" +
+            "  <Content><![CDATA[你好]]></Content>\n" +
+            "</xml>";
+    return result;
+  }
 
-    return ApiResponse.ok(request.toString());
+  public static void main(String[] args) {
+    //获取时间戳
+    long timestamp = System.currentTimeMillis() / 1000;
+    System.out.println(timestamp);
+    // 解析时间戳成 yyyy-MM-dd HH:mm:ss 格式的日期时间字符串
+    String dateTimeStr = LocalDateTime.now().toString();
+    System.out.println(dateTimeStr);
   }
 }
