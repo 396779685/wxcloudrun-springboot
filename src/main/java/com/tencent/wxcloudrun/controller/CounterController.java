@@ -82,9 +82,9 @@ public class CounterController {
   }
 
   @PostMapping(value = "/api/getMsg")
-  ApiResponse getMsg(@RequestBody JSONObject request) {
-    logger.info("/api/getMsg post request, action: {}", request.toJSONString());
+  ApiResponse getMsg(Object request) {
+    logger.info("/api/getMsg post request, action: {}", request);
 
-    return ApiResponse.ok(request.toJSONString());
+    return ApiResponse.ok(request.toString());
   }
 }
