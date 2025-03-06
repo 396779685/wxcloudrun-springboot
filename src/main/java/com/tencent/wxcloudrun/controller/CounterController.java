@@ -98,7 +98,7 @@ public class CounterController {
     long timestamp = System.currentTimeMillis() / 1000;
     String result = "<xml>\n" +
             "  <ToUserName><![CDATA["+FromUserName+"]]></ToUserName>\n" +
-            "  <FromUserName><![CDATA[gh_ece0086d4736]]></FromUserName>\n" +
+            "  <FromUserName><![CDATA[wxd06c16ebb3c56726]]></FromUserName>\n" +
             "  <CreateTime>"+timestamp+"</CreateTime>\n" +
             "  <MsgType><![CDATA[text]]></MsgType>\n" +
             "  <Content><![CDATA[你好]]></Content>\n" +
