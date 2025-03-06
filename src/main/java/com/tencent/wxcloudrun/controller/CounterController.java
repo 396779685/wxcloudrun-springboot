@@ -103,6 +103,7 @@ public class CounterController {
             "  <MsgType><![CDATA[text]]></MsgType>\n" +
             "  <Content><![CDATA[你好]]></Content>\n" +
             "</xml>";
+    logger.info("返回数据为{}", result);
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
