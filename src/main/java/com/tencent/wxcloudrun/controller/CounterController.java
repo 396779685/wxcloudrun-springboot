@@ -84,7 +84,7 @@ public class CounterController {
   }
 
   @PostMapping(value = "/api/getMsg", produces = "application/xml")
-  ResponseEntity<String> getMsg(@RequestBody JSONObject request) {
+  JSONObject getMsg(@RequestBody JSONObject request) {
     logger.info("/api/getMsg post request, action: {}", request.toJSONString());
     String msg = "{" +
             "\"Content\":\"哇哈\"," +
@@ -98,13 +98,18 @@ public class CounterController {
     long timestamp = System.currentTimeMillis() / 1000;
     String result = "<xml>\n" +
             "  <ToUserName><![CDATA["+FromUserName+"]]></ToUserName>\n" +
-            "  <FromUserName><![CDATA[wxd06c16ebb3c56726]]></FromUserName>\n" +
+            "  <FromUserName><![CDATA[gh_ece0086d4736]]></FromUserName>\n" +
             "  <CreateTime>"+timestamp+"</CreateTime>\n" +
             "  <MsgType><![CDATA[text]]></MsgType>\n" +
             "  <Content><![CDATA[你好]]></Content>\n" +
             "</xml>";
-    logger.info("返回数据为{}", result);
-    return new ResponseEntity<>(result, HttpStatus.OK);
+    JSONObject jo = new JSONObject();
+    jo.put("ToUserName", FromUserName);
+    jo.put("FromUserName", "gh_ece0086d4736");
+    jo.put("CreateTime", timestamp);
+    jo.put("MsgType", "text");
+    jo.put("Content", "你好");
+    return jo;
   }
 
   public static void main(String[] args) {
