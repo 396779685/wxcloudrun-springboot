@@ -95,7 +95,9 @@ public class CounterController {
 
     @PostMapping(value = "/api/getMsg")
     JSONObject getMsg(@RequestBody JSONObject request) {
-        logger.info("/api/getMsg post request, action: {}", request.toJSONString());
+        logger.info("/api/getMsg post 入参: {}", request.toJSONString());
+
+
     /*String msg = "{" +
             "\"Content\":\"哇哈\"," +
             "\"CreateTime\":1741164957," +
