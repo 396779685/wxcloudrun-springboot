@@ -8,6 +8,8 @@ import com.tencent.wxcloudrun.dto.CounterRequest;
 import com.tencent.wxcloudrun.model.Counter;
 import com.tencent.wxcloudrun.service.CounterService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -81,8 +83,8 @@ public class CounterController {
     }
   }
 
-  @PostMapping(value = "/api/getMsg")
-  String getMsg(@RequestBody JSONObject request) {
+  @PostMapping(value = "/api/getMsg", produces = "application/xml")
+  ResponseEntity<String> getMsg(@RequestBody JSONObject request) {
     logger.info("/api/getMsg post request, action: {}", request.toJSONString());
     String msg = "{" +
             "\"Content\":\"哇哈\"," +
@@ -101,7 +103,7 @@ public class CounterController {
             "  <MsgType><![CDATA[text]]></MsgType>\n" +
             "  <Content><![CDATA[你好]]></Content>\n" +
             "</xml>";
-    return result;
+    return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
   public static void main(String[] args) {
