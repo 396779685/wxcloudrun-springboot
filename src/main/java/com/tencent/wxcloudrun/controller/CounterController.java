@@ -99,7 +99,10 @@ public class CounterController {
         }
     }
 
+    //记录历史访问内容
     private static Map<String, List<Message>> staticMap = new HashMap<>();
+    //记录上次请求时间
+    private static Map<String, Long> timestampMap = new HashMap<>();
     private static String noticeMsg = "思考中，请回复 1 查看结果。";
     @PostMapping(value = "/api/getMsg")
     JSONObject getMsg(@RequestBody JSONObject request) {
@@ -127,7 +130,15 @@ public class CounterController {
         }else if("清空".equals(requestContent.trim())){
             staticMap.remove(FromUserName);
         }
-
+        // 根据timestampMap获取上次请求时间，如果跟这次相差5分钟，则清空staticMap
+        long currentTimeMillis = System.currentTimeMillis();
+        if (timestampMap.get(FromUserName) != null) {
+            long lastTimeMillis = timestampMap.get(FromUserName);
+            long diff = currentTimeMillis - lastTimeMillis;
+            if (diff > 5 * 60 * 1000) {
+                staticMap.remove(FromUserName);
+            }
+        }
         /*String msg = "{" +
             "\"Content\":\"哇哈\"," +
             "\"CreateTime\":1741164957," +
@@ -201,6 +212,7 @@ public class CounterController {
             }
             messages.add(new Message(RoleEnum.assistant.name(), response));
             staticMap.put(FromUserName, messages);
+            timestampMap.put(FromUserName, System.currentTimeMillis());
         }
         // 统计以下代码耗时
         System.out.println("耗时："+(System.currentTimeMillis()-start));
