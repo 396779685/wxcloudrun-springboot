@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tencent.wxcloudrun.util.Message;
 import com.tencent.wxcloudrun.util.MoonshotAiUtils;
 import com.tencent.wxcloudrun.util.RoleEnum;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.tencent.wxcloudrun.config.ApiResponse;
@@ -15,15 +16,21 @@ import com.tencent.wxcloudrun.dto.CounterRequest;
 import com.tencent.wxcloudrun.model.Counter;
 import com.tencent.wxcloudrun.service.CounterService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.List;
 
@@ -93,12 +100,26 @@ public class CounterController {
         }
     }
 
+    private static Map<String, List<Message>> staticMap = new HashMap<>();
+
     @PostMapping(value = "/api/getMsg")
     JSONObject getMsg(@RequestBody JSONObject request) {
         logger.info("/api/getMsg post 入参: {}", request.toJSONString());
 
+        String FromUserName = request.getString("FromUserName");
+        String requestContent = request.getString("Content").trim();
+        if("1".equals(requestContent)){
+            // 获取上次的数据
+            if(staticMap.get(FromUserName)!=null){
+                List<Message> msgList = staticMap.get(FromUserName);
+                // 获取最后放入的一条数据
+                Message lastMsg = msgList.get(msgList.size()-1);
+                JSONObject jo = getJsonObject(FromUserName, lastMsg.getContent());
+                return jo;
+            }
+        }
 
-    /*String msg = "{" +
+        /*String msg = "{" +
             "\"Content\":\"哇哈\"," +
             "\"CreateTime\":1741164957," +
             "\"ToUserName\":\"gh_ece0086d4736\"," +
@@ -106,18 +127,29 @@ public class CounterController {
             "\"MsgType\":\"text\"," +
             "\"MsgId\":24927491174065560" +
             "}";*/
-        String FromUserName = request.getString("FromUserName");
+        // 调用chat 方法的时候开启计时，超过4s直接返回错误信息
+        String response = chatWithTimeout(requestContent, 4, TimeUnit.SECONDS);
+
+        //String res = chat(request.getString("Content"));
+        JSONObject jo = getJsonObject(FromUserName, response);
+        return jo;
+    }
+
+    @NotNull
+    private static JSONObject getJsonObject(String FromUserName, String res) {
         long timestamp = System.currentTimeMillis() / 1000;
         JSONObject jo = new JSONObject();
         jo.put("ToUserName", FromUserName);
         jo.put("FromUserName", "gh_ece0086d4736");
         jo.put("CreateTime", timestamp);
         jo.put("MsgType", "text");
-        jo.put("Content", chat(request.getString("Content")));
+        jo.put("Content", res);
         return jo;
     }
 
     String chat(String textStr){
+        //启动计时，如果超过4秒没有返回数据，则返回给用户请重试
+
         List<Message> messages = CollUtil.newArrayList(
                 new Message(RoleEnum.user.name(), textStr)
         );
@@ -162,6 +194,31 @@ public class CounterController {
         }
 
         return result.toString();
+    }
+
+    // 包装chat方法，使其可以在线程池中运行
+    private Callable<String> chatCallable(String content) {
+        return () -> chat(content);
+    }
+
+    // 带超时机制的聊天方法
+    public String chatWithTimeout(String content, long timeout, TimeUnit unit) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<String> future = executor.submit(chatCallable(content));
+
+        try {
+            // 尝试在指定时间内获取结果
+            return future.get(timeout, unit);
+        } catch (TimeoutException e) {
+            // 超时处理，返回错误信息
+            return "查询中，请回复1继续等待";
+        } catch (InterruptedException | ExecutionException e) {
+            // 其他异常处理，返回错误信息
+            return "Error: " + e.getMessage();
+        } finally {
+            // 关闭线程池
+            executor.shutdown();
+        }
     }
 
     public static void main(String[] args) {
