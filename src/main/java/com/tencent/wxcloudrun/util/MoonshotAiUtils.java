@@ -126,7 +126,6 @@ public class MoonshotAiUtils {
     }
 
 
-
     @SneakyThrows
     public static JSONObject chatNew(@NonNull String model, @NonNull List<Message> messages) {
         String requestBody = new JSONObject()
@@ -135,19 +134,19 @@ public class MoonshotAiUtils {
                 .putOpt("stream", true)
                 .toString();
 
-            String url= CHAT_COMPLETION_URL;
-            HttpResponse response = HttpRequest.post(url)
-                    .contentType(ContentType.JSON.getValue())
-                    .body(requestBody)
-                    .header("Authorization", "Bearer " + API_KEY)
-                    .execute();
+        String url = CHAT_COMPLETION_URL;
+        HttpResponse response = HttpRequest.post(url)
+                .contentType(ContentType.JSON.getValue())
+                .body(requestBody)
+                .header("Authorization", "Bearer " + API_KEY)
+                .execute();
 
-            System.out.printf("status:" + response.getStatus());
-            String body = response.body();
-            //System.out.printf("addJobInfo:" + body);
-            JSONObject jo = new JSONObject();
-            jo.put("body",body);
-            jo.put("status",response.getStatus());
-            return jo;
+        System.out.printf("status:" + response.getStatus());
+        String body = response.body();
+        //System.out.printf("addJobInfo:" + body);
+        JSONObject jo = new JSONObject();
+        jo.put("body", body);
+        jo.put("status", response.getStatus());
+        return jo;
     }
 }
