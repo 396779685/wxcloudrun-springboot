@@ -28,7 +28,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -128,7 +127,7 @@ public class CounterController {
             "\"MsgId\":24927491174065560" +
             "}";*/
         // 调用chat 方法的时候开启计时，超过4s直接返回错误信息
-        String response = chatWithTimeout(FromUserName, requestContent, 4, TimeUnit.SECONDS);
+        String response = chatWithTimeout(FromUserName, requestContent, 3, TimeUnit.SECONDS);
 
         //String res = chat(request.getString("Content"));
         JSONObject jo = getJsonObject(FromUserName, response);
@@ -230,11 +229,22 @@ public class CounterController {
     }
 
     public static void main(String[] args) {
-        //获取时间戳
+        /*//获取时间戳
         long timestamp = System.currentTimeMillis() / 1000;
         System.out.println(timestamp);
         // 解析时间戳成 yyyy-MM-dd HH:mm:ss 格式的日期时间字符串
         String dateTimeStr = LocalDateTime.now().toString();
-        System.out.println(dateTimeStr);
+        System.out.println(dateTimeStr);*/
+        String param = "{\n" +
+                "    \"Content\": \"西游记都\",\n" +
+                "    \"CreateTime\": 1741164957,\n" +
+                "    \"ToUserName\": \"gh_ece0086d4736\",\n" +
+                "    \"FromUserName\": \"oSiRW6Cu5aS3fNRnbnnE6E0PodcY\",\n" +
+                "    \"MsgType\": \"text\",\n" +
+                "    \"MsgId\": 24927491174065560\n" +
+                "}";
+        CounterController controller = new CounterController(null);
+        JSONObject jo = controller.getMsg(JSONObject.parseObject(param));
+        System.out.println(jo.toJSONString());
     }
 }
