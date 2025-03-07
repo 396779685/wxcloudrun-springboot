@@ -104,10 +104,12 @@ public class CounterController {
     @PostMapping(value = "/api/getMsg")
     JSONObject getMsg(@RequestBody JSONObject request) {
         logger.info("/api/getMsg post 入参: {}", request.toJSONString());
-
         String FromUserName = request.getString("FromUserName");
         String requestContent = request.getString("Content").trim();
-        if("1".equals(requestContent)){
+        if(requestContent==null){
+            return getJsonObject(FromUserName, "请输入内容");
+        }
+        if("1".equals(requestContent.trim())){
             // 获取上次的数据
             if(staticMap.get(FromUserName)!=null){
                 List<Message> msgList = staticMap.get(FromUserName);
@@ -119,6 +121,8 @@ public class CounterController {
                 }
                 JSONObject jo = getJsonObject(FromUserName, content);
                 return jo;
+            }else{
+                return getJsonObject(FromUserName, "未获取到上次记忆信息，请重新输入问题");
             }
         }
 
@@ -167,6 +171,11 @@ public class CounterController {
         List<Message> messages = staticMap.get(FromUserName);
         if(messages==null || messages.size()==0){
             messages = CollUtil.newArrayList();
+            messages.add(new Message(RoleEnum.system.name(), "你是一位专业的电商客服，负责解答客户关于商品信息、订单状态、售后服务等问题。你的回答应该简洁明了、热情友好，并且始终以客户满意度为优先。如果客户提出的问题超出了你的权限范围，你可以建议他们联系相关部门或提供进一步的指引。"));
+        }
+        // 往messages插入数据，最多保存10条
+        if(messages.size()>10){
+            messages.remove(0);
         }
         messages.add(new Message(RoleEnum.user.name(), textStr));
 
@@ -180,7 +189,11 @@ public class CounterController {
             String[] jsonDataStrings = response.split("\n");
             response = extractAndConcatenateContent(jsonDataStrings);
             System.out.println(response);
-            messages.add(new Message(RoleEnum.system.name(), response));
+            // 往messages插入数据，最多保存10条
+            if(messages.size()>10){
+                messages.remove(0);
+            }
+            messages.add(new Message(RoleEnum.assistant.name(), response));
             staticMap.put(FromUserName, messages);
         }
         // 统计以下代码耗时
