@@ -100,7 +100,7 @@ public class CounterController {
     }
 
     private static Map<String, List<Message>> staticMap = new HashMap<>();
-    private static String noticeMsg = "查询中，请回复1继续等待";
+    private static String noticeMsg = "思考中，请回复 1 查看结果。";
     @PostMapping(value = "/api/getMsg")
     JSONObject getMsg(@RequestBody JSONObject request) {
         logger.info("/api/getMsg post 入参: {}", request.toJSONString());
@@ -124,6 +124,8 @@ public class CounterController {
             }else{
                 return getJsonObject(FromUserName, "未获取到上次记忆信息，请重新输入问题");
             }
+        }else if("清空".equals(requestContent.trim())){
+            staticMap.remove(FromUserName);
         }
 
         /*String msg = "{" +
