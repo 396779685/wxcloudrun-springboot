@@ -146,35 +146,42 @@ public class CounterController {
         return jo;
     }
 
+    /**
+     * // 返回数据如下
+     *         //data: {"id":"chatcmpl-67c96964971a7a505b6ff17a","object":"chat.completion.chunk","created":1741252964,"model":"moonshot-v1-8k","choices":[{"index":0,"delta":{"content":"。"},"finish_reason":null}],"system_fingerprint":"fpv0_ca1d2527"}
+     *         //
+     *         //data: {"id":"chatcmpl-67c96964971a7a505b6ff17a","object":"chat.completion.chunk","created":1741252964,"model":"moonshot-v1-8k","choices":[{"index":0,"delta":{},"finish_reason":"stop","usage":{"prompt_tokens":39,"completion_tokens":211,"total_tokens":250}}],"system_fingerprint":"fpv0_ca1d2527"}
+     *         //
+     *         //data: [DONE]
+     * @param FromUserName
+     * @param textStr
+     * @return
+     */
     String chat(String FromUserName, String textStr){
         //启动计时，如果超过4秒没有返回数据，则返回给用户请重试
 
         List<Message> messages = staticMap.get(FromUserName);
         if(messages==null || messages.size()==0){
-            messages = CollUtil.newArrayList(
-                    new Message(RoleEnum.user.name(), textStr)
-            );
-        }else{
-            messages.add(new Message(RoleEnum.user.name(), textStr));
+            messages = CollUtil.newArrayList();
         }
+        messages.add(new Message(RoleEnum.user.name(), textStr));
 
         long start = System.currentTimeMillis();
 
-        // 返回数据如下
-        //data: {"id":"chatcmpl-67c96964971a7a505b6ff17a","object":"chat.completion.chunk","created":1741252964,"model":"moonshot-v1-8k","choices":[{"index":0,"delta":{"content":"。"},"finish_reason":null}],"system_fingerprint":"fpv0_ca1d2527"}
-        //
-        //data: {"id":"chatcmpl-67c96964971a7a505b6ff17a","object":"chat.completion.chunk","created":1741252964,"model":"moonshot-v1-8k","choices":[{"index":0,"delta":{},"finish_reason":"stop","usage":{"prompt_tokens":39,"completion_tokens":211,"total_tokens":250}}],"system_fingerprint":"fpv0_ca1d2527"}
-        //
-        //data: [DONE]
-        // 根据换行符分隔成为字符串数组
-        String[] jsonDataStrings = MoonshotAiUtils.chatNew("moonshot-v1-8k", messages).split("\n");
-        String res = extractAndConcatenateContent(jsonDataStrings);
-        System.out.println(res);
+        cn.hutool.json.JSONObject responseJson = MoonshotAiUtils.chatNew("moonshot-v1-8k", messages);
+        int status = responseJson.getInt("status");
+        String response = responseJson.getStr("body");
+        if(status==200){
+            // 根据换行符分隔成为字符串数组
+            String[] jsonDataStrings = response.split("\n");
+            response = extractAndConcatenateContent(jsonDataStrings);
+            System.out.println(response);
+        }
         // 统计以下代码耗时
         System.out.println("耗时："+(System.currentTimeMillis()-start));
-        messages.add(new Message(RoleEnum.system.name(), res));
+        messages.add(new Message(RoleEnum.system.name(), response));
         staticMap.put(FromUserName, messages);
-        return res;
+        return response;
     }
     public static String extractAndConcatenateContent(String[] jsonDataStrings) {
         ObjectMapper objectMapper = new ObjectMapper();
