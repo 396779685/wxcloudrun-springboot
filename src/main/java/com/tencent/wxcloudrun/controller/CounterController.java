@@ -176,11 +176,11 @@ public class CounterController {
             String[] jsonDataStrings = response.split("\n");
             response = extractAndConcatenateContent(jsonDataStrings);
             System.out.println(response);
+            messages.add(new Message(RoleEnum.system.name(), response));
+            staticMap.put(FromUserName, messages);
         }
         // 统计以下代码耗时
         System.out.println("耗时："+(System.currentTimeMillis()-start));
-        messages.add(new Message(RoleEnum.system.name(), response));
-        staticMap.put(FromUserName, messages);
         return response;
     }
     public static String extractAndConcatenateContent(String[] jsonDataStrings) {

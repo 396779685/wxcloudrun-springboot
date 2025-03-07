@@ -128,7 +128,7 @@ public class MoonshotAiUtils {
 
 
     @SneakyThrows
-    public static String chatNew(@NonNull String model, @NonNull List<Message> messages) {
+    public static JSONObject chatNew(@NonNull String model, @NonNull List<Message> messages) {
         String requestBody = new JSONObject()
                 .putOpt("model", model)
                 .putOpt("messages", messages)
@@ -145,6 +145,9 @@ public class MoonshotAiUtils {
             System.out.printf("status:" + response.getStatus());
             String body = response.body();
             //System.out.printf("addJobInfo:" + body);
-            return body;
+            JSONObject jo = new JSONObject();
+            jo.put("body",body);
+            jo.put("status",response.getStatus());
+            return jo;
     }
 }
