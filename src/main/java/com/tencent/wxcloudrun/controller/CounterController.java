@@ -128,7 +128,7 @@ public class CounterController {
             "\"MsgId\":24927491174065560" +
             "}";*/
         // 调用chat 方法的时候开启计时，超过4s直接返回错误信息
-        String response = chatWithTimeout(requestContent, 4, TimeUnit.SECONDS);
+        String response = chatWithTimeout(FromUserName, requestContent, 4, TimeUnit.SECONDS);
 
         //String res = chat(request.getString("Content"));
         JSONObject jo = getJsonObject(FromUserName, response);
@@ -147,12 +147,18 @@ public class CounterController {
         return jo;
     }
 
-    String chat(String textStr){
+    String chat(String FromUserName, String textStr){
         //启动计时，如果超过4秒没有返回数据，则返回给用户请重试
 
-        List<Message> messages = CollUtil.newArrayList(
-                new Message(RoleEnum.user.name(), textStr)
-        );
+        List<Message> messages = staticMap.get(FromUserName);
+        if(messages==null || messages.size()==0){
+            messages = CollUtil.newArrayList(
+                    new Message(RoleEnum.user.name(), textStr)
+            );
+        }else{
+            messages.add(new Message(RoleEnum.user.name(), textStr));
+        }
+
         long start = System.currentTimeMillis();
 
         // 返回数据如下
@@ -167,6 +173,8 @@ public class CounterController {
         System.out.println(res);
         // 统计以下代码耗时
         System.out.println("耗时："+(System.currentTimeMillis()-start));
+        messages.add(new Message(RoleEnum.system.name(), res));
+        staticMap.put(FromUserName, messages);
         return res;
     }
     public static String extractAndConcatenateContent(String[] jsonDataStrings) {
@@ -197,14 +205,14 @@ public class CounterController {
     }
 
     // 包装chat方法，使其可以在线程池中运行
-    private Callable<String> chatCallable(String content) {
-        return () -> chat(content);
+    private Callable<String> chatCallable(String FromUserName, String content) {
+        return () -> chat(FromUserName, content);
     }
 
     // 带超时机制的聊天方法
-    public String chatWithTimeout(String content, long timeout, TimeUnit unit) {
+    public String chatWithTimeout(String FromUserName, String content, long timeout, TimeUnit unit) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<String> future = executor.submit(chatCallable(content));
+        Future<String> future = executor.submit(chatCallable(FromUserName, content));
 
         try {
             // 尝试在指定时间内获取结果
