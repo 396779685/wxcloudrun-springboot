@@ -171,7 +171,11 @@ public class CounterController {
         List<Message> messages = staticMap.get(FromUserName);
         if(messages==null || messages.size()==0){
             messages = CollUtil.newArrayList();
-            messages.add(new Message(RoleEnum.system.name(), "你是一位专业的电商客服，负责解答客户关于商品信息、订单状态、售后服务等问题。你的回答应该简洁明了、热情友好，并且始终以客户满意度为优先。如果客户提出的问题超出了你的权限范围，你可以建议他们联系相关部门或提供进一步的指引。"));
+            messages.add(new Message(RoleEnum.system.name(), "" +
+                    "你是电商公司“张小伊有限公司”的客服，负责解答客户关于商品信息、订单状态、售后服务等问题。你的回答应该简洁明了、热情友好，并且始终以客户满意度为优先。" +
+                    "对于七天包退和运费险等的问题，都要回答请咨询人工客服。" +
+                    "你们公司的老板叫张小伊。" +
+                    "如果客户提出的问题超出了你的权限范围，你可以建议他们联系人工客服。"));
         }
         // 往messages插入数据，最多保存10条
         if(messages.size()>10){
