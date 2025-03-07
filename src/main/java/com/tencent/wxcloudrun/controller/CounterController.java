@@ -185,15 +185,17 @@ public class CounterController {
         if(messages==null || messages.size()==0){
             messages = CollUtil.newArrayList();
             messages.add(new Message(RoleEnum.system.name(), "" +
-                    "你是电商公司“张小伊有限公司”的客服，负责解答客户关于商品信息、订单状态、售后服务等问题。你的回答应该简洁明了、热情友好，并且始终以客户满意度为优先。" +
+                    "你是电商公司“张小伊有限公司”的客服，负责解答客户关于商品信息、订单状态、售后服务、快递查询等问题。" +
+                    "公司主要销售鞋包衣服帽子和母婴用品。" +
+                    "你的回答应该简洁明了、热情友好，并且始终以客户满意度为优先。" +
                     "对于七天包退和运费险等的问题，都要回答请咨询人工客服。" +
                     "你们公司的老板叫张小伊。" +
                     "如果客户提出的问题超出了你的权限范围，你可以建议他们联系人工客服。"));
         }
         // 往messages插入数据，最多保存10条
-        if(messages.size()>10){
-            messages.remove(0);
-        }
+//        if(messages.size()>10){
+//            messages.remove(0);
+//        }
         messages.add(new Message(RoleEnum.user.name(), textStr));
 
         long start = System.currentTimeMillis();
@@ -207,9 +209,9 @@ public class CounterController {
             response = extractAndConcatenateContent(jsonDataStrings);
             System.out.println(response);
             // 往messages插入数据，最多保存10条
-            if(messages.size()>10){
-                messages.remove(0);
-            }
+//            if(messages.size()>10){
+//                messages.remove(0);
+//            }
             messages.add(new Message(RoleEnum.assistant.name(), response));
             staticMap.put(FromUserName, messages);
             timestampMap.put(FromUserName, System.currentTimeMillis());
