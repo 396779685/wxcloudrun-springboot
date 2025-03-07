@@ -1,6 +1,5 @@
 package com.tencent.wxcloudrun.util;
 
-import cn.hutool.core.lang.Assert;
 import lombok.*;
 
 @NoArgsConstructor

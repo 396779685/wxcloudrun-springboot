@@ -100,7 +100,7 @@ public class CounterController {
     }
 
     private static Map<String, List<Message>> staticMap = new HashMap<>();
-
+    private static String noticeMsg = "查询中，请回复1继续等待";
     @PostMapping(value = "/api/getMsg")
     JSONObject getMsg(@RequestBody JSONObject request) {
         logger.info("/api/getMsg post 入参: {}", request.toJSONString());
@@ -113,7 +113,11 @@ public class CounterController {
                 List<Message> msgList = staticMap.get(FromUserName);
                 // 获取最后放入的一条数据
                 Message lastMsg = msgList.get(msgList.size()-1);
-                JSONObject jo = getJsonObject(FromUserName, lastMsg.getContent());
+                String content = noticeMsg;
+                if(!lastMsg.getRole().equals(RoleEnum.user.name())){
+                    content = lastMsg.getContent();
+                }
+                JSONObject jo = getJsonObject(FromUserName, content);
                 return jo;
             }
         }
@@ -158,7 +162,7 @@ public class CounterController {
      * @return
      */
     String chat(String FromUserName, String textStr){
-        //启动计时，如果超过4秒没有返回数据，则返回给用户请重试
+        //启动计时，如果超过时间没有返回数据，则返回给用户请重试
 
         List<Message> messages = staticMap.get(FromUserName);
         if(messages==null || messages.size()==0){
@@ -225,7 +229,7 @@ public class CounterController {
             return future.get(timeout, unit);
         } catch (TimeoutException e) {
             // 超时处理，返回错误信息
-            return "查询中，请回复1继续等待";
+            return noticeMsg;
         } catch (InterruptedException | ExecutionException e) {
             // 其他异常处理，返回错误信息
             return "Error: " + e.getMessage();
